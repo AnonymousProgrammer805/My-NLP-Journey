@@ -1,0 +1,19 @@
+# ✅ Program : Custom Sentence Segmentation Rules in spaCy
+from spacy.language import Language
+from spacy.tokens import Doc
+
+@Language.component("custom_sentencizer")
+def custom_sentencizer(doc):
+    for token in doc[:-1]:
+        if token.text.lower() in ("but", "and"):
+            doc[token.i + 1].is_sent_start = True
+    return doc
+
+custom_nlp = spacy.load("en_core_web_sm")
+custom_nlp.add_pipe("custom_sentencizer", before="parser")
+
+custom_text = "He built a startup and it was successful. But he didn't stop there. He kept innovating."
+custom_doc = custom_nlp(custom_text)
+print("\nCustom Sentence Split:")
+for i, sent in enumerate(custom_doc.sents, 1):
+    print(f"{i} --> {sent.text.strip()}")
