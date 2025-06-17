@@ -1,0 +1,19 @@
+
+print('Processing spaCy and NLTK outputs...')
+import spacy
+from nltk.tokenize import sent_tokenize
+# spaCy output:
+
+nlp=spacy.load("en_core_web_sm")
+paragraph='Dr. Raman lives in the U.S. He has founded an AI startup. He is extremely passionate about it.'
+processed_data=nlp(paragraph)
+processed_text=[abc.text.strip() for abc in processed_data.sents]
+for i, s in enumerate(processed_text,1):
+    print(f'{i}--->   {s}')
+
+
+#nltk output:
+processed_text_2=sent_tokenize(paragraph)
+for k, b in enumerate(processed_text_2,1):
+    print(f'{k}---{b}')
+
