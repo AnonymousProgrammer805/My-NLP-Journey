@@ -1,0 +1,62 @@
+#grammar structure analyzer
+print('starting the program...')
+import spacy
+from collections import Counter
+from spacy import explain
+#---------#
+input_text=input('Enter your sentence/paragraph here--->  ')
+nlp=spacy.load("en_core_web_sm")
+processed_text=nlp(input_text)
+all_sentences=list(processed_text.sents)
+print('List= all_sentences:')
+print(all_sentences)
+#--------#
+print(" "*100)
+print("-"*100)
+
+print(f"{'Serial.no':<12}{'Individual-sentences':<50}")
+for i, k in enumerate(all_sentences,1):
+    print(f'{i:<12}{k.text.strip():<50}')
+    print(f"{'tag':<50}{'tag_exp':<50}{'pos':<50}{'pos_exp':<50}")
+    print(" "*100)
+    print("-"*100)
+    print(" "*100)
+    
+    for bits in k:
+        tag=bits.tag_
+        pos=bits.pos_
+        tag_exp=explain(tag) or 'N/A'
+        pos_exp=explain(pos) or 'N/A'
+    
+        
+        print(f"{tag:<50}{tag_exp:<50}{pos:<50}{pos_exp:<50}")
+        
+#--------#
+        
+print(" "*100)
+print("-"*100)
+
+
+print('POS and Tag Counter:-')
+
+tag_counts=Counter(abc.tag_ for abc in processed_text)
+pos_counts=Counter(xyz.pos_ for xyz in processed_text)
+
+print(f"{'Tag-name':<10}{'Tag - Frequency':<10}")
+for tag_1, count_1 in tag_counts.most_common():
+    print(f'{tag_1:<10}--->{count_1:<10} times ')
+print(" "*100)
+print("-"*100)
+
+#---------#
+
+
+    
+print(f"{'POS-name':<10}{'POS-frequency':<10}")
+for pos_1, count_2 in pos_counts.most_common():
+    print(f'{pos_1:<10}{count_2:<10} times')
+
+print(" "*100)
+print("-"*100)
+    
+    
