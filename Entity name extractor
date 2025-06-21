@@ -1,0 +1,14 @@
+import spacy
+from spacy import explain
+nlp=spacy.load("en_core_web_sm")
+text=input('Enter a sentence/paragraph')
+processed_text=nlp(text)
+a=[sent.text.strip() for sent in processed_text.sents]
+b=list(a)
+print(b)
+for ent in processed_text.ents:
+    explanation=explain(ent.label_)
+    
+    print(f'{ent}--->{explanation}')
+for i, abc in enumerate(processed_text.ents,1):
+    print(f'{i}--->{abc}')
