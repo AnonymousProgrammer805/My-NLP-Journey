@@ -1,0 +1,26 @@
+import spacy
+
+import nltk
+from nltk.stem import PorterStemmer, WordNetLemmatizer
+stemmer=PorterStemmer()
+lemmatizer=WordNetLemmatizer()
+nlp=spacy.load("en_core_web_sm")
+text='The lion roars. The cat pounces. The dog runs.'
+
+def get_verbs(doc):
+    verbs_list=[]
+    processed_doc=nlp(doc)
+    for sent in processed_doc.sents:
+        for word in sent:
+            pt_of_sch=word.pos_
+            if pt_of_sch=='VERB':
+                verbs_list.append(word)
+    return verbs_list
+sample_data1=get_verbs(text)
+print(sample_data1)
+print(type(sample_data1))
+
+for s_1 in sample_data1:
+    print(f'{s_1.text.lower()}--->{stemmer.stem(s_1.text)}')
+for s_2 in sample_data1:
+    print(f"{s_2.text.lower()}--->{lemmatizer.lemmatize(s_2.text,pos='v')}")
