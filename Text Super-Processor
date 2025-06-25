@@ -1,0 +1,70 @@
+import spacy, re
+import nltk
+from nltk.stem import PorterStemmer, WordNetLemmatizer
+stemmer=PorterStemmer()
+lemmatizer=WordNetLemmatizer()
+nlp=spacy.load("en_core_web_sm")
+
+text=input('Enter a paragraph:')
+
+class Text_Processor:
+    def __init__(self,data):
+        self.data=data
+
+    def processing_data(self):
+        processed_data=nlp(self.data)
+        for i, k in enumerate(processed_data.sents,1):
+            print(f'{i:<5}{k}')
+
+    def getting_pos(self):
+        processed_data=nlp(self.data)
+        for sentences in processed_data.sents:
+            print(f'The sentence---> {sentences}')
+            print('-'*50)
+            print(f"{'Word':<12}{'Pos Universal':<20}")
+            for token in sentences:
+                
+                t=token.text
+                pos=token.pos_
+                
+                print(f"{t:<12}{pos:<20}")
+
+    def getting_tag(self):
+        
+        
+        processed_data=nlp(self.data)
+        for sentences in processed_data.sents:
+            print(f'The sentence---> {sentences}')
+            print("-"*50)
+            print(f"{'Word':<12}{'Pos-Tag':<20}")
+            
+            for token in sentences:
+                
+                t=token.text
+                pos=token.tag_
+                
+                print(f"{t:<12}{pos:<20}")
+    def lemmas(self):
+        processed_data=nlp(self.data)
+        lemma_list=[]
+        for token in processed_data:
+            lemma_1=lemmatizer.lemmatize(token.text, pos='v')
+            lemma_list.append((token.text,lemma_1))
+        print(lemma_list)
+
+
+    def stems(self):
+        processed_data=nlp(self.data)
+        lemma_list=[]
+        for token in processed_data:
+            lemma_1=stemmer.stem(token.text)
+            lemma_list.append((token.text,lemma_1))
+        print(lemma_list)
+
+
+first_input=Text_Processor(text)
+first_input.processing_data()
+first_input.getting_pos()
+first_input.getting_tag()
+first_input.lemmas()
+first_input.stems()
