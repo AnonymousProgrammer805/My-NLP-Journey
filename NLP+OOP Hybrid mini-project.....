@@ -1,0 +1,38 @@
+import spacy
+import langdetect
+from langdetect import detect
+nlp=spacy.load("en_core_web_sm")
+
+class User_input:
+    def __init__(self,text):
+        self.text=text
+
+    def lowercase(self):
+        text_1=self.text.lower()
+        print (text_1)
+
+    def getting_sents(self):
+        processed_text=nlp(self.text)
+        for sent in processed_text.sents:
+            print(f'{sent}')
+        print('Numbered Sequence:')
+        for i, k in enumerate(processed_text.sents,1):
+            print(f'{i:<12}{k}')
+    def language_used(self):
+        L_1=detect(self.text)
+        print(L_1)
+
+    def add_sentence(self, new_sent):
+        processed_text=nlp(self.text)
+        list_1=list(processed_text.sents)
+        processed_text_2=nlp(new_sent)
+        list_2=list(processed_text_2.sents)
+        list_3=list_1 + list_2
+        print (list_3)
+text=input('Enter your sentence/paragraph:   ')
+text_extra=input("Enter further information: enter a '.'---> full stop if no extra information is to be added.")
+object_1=User_input(text)
+object_1.lowercase()
+object_1.getting_sents()
+object_1.language_used()
+object_1.add_sentence(text_extra)
