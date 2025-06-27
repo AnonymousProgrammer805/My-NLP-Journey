@@ -1,0 +1,28 @@
+#N-grams
+import nltk
+from nltk.util import ngrams
+from nltk.tokenize import word_tokenize
+from collections import Counter
+
+text="Natural language processing helps machines to understand and interpret human language."
+tokens=word_tokenize(text)
+unigrams=list(ngrams(tokens,1))
+bigrams=list(ngrams(tokens,2))
+trigrams=list(ngrams(tokens,3))
+print(unigrams);print(bigrams);print(trigrams)
+
+c_1=Counter( unigrams)
+c_2=Counter( bigrams)
+c_3=Counter( trigrams)
+print(c_1);print(c_2);print(c_3)
+
+def freq_items(input_lists):
+    count_1=Counter(input_lists)
+    print('-'*50)
+    print(count_1)
+    print('-'*50)
+    sorting_list=list(sorted(count_1.items(), key=lambda x: x[1], reverse=True))# lambda is a function inside python which is used to make one-line short functions. sorted is used to sort elements 
+    print (sorting_list);print('this is the output')                         #by the ascending order but , reverse=True converts it into descending order. counter object, in this case namely 'count_1' is a dictionary of the format ---> {('ai','is'):3}: element:occurences. and .items() gives out the elements of dictionaries as tuple items.
+    
+
+freq_items(trigrams)
