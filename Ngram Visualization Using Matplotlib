@@ -1,0 +1,57 @@
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.util import ngrams
+from nltk.corpus import stopwords
+from collections import Counter
+import matplotlib.pyplot as plt
+
+
+text='Natural Language Processing is the field of AI that allows humans to understand natural language.'
+
+#showing how casefold() works
+processed_text=(text.casefold())
+print('-'*50)
+print(processed_text)
+print('-'*50)
+
+def remove_stopwords(doc):
+    stop_words=set(stopwords.words('english'))
+    text_1=doc.casefold()
+    text_2=word_tokenize(text_1)
+    text_3=[token for token in text_2 if token not in stop_words and token.isalpha()]
+    bigrams=list(ngrams(text_3,2))
+    final_output=[" ".join(bits) for bits in bigrams]
+    print('-'*50)
+    print(final_output)
+    print('-'*50)
+
+
+def plotting(doc):
+    stop_words=set(stopwords.words('english'))
+    text_1=doc.casefold()
+    text_2=word_tokenize(text_1)
+    text_3=[token for token in text_2 if token not in stop_words and token.isalpha()]
+    bigrams=list(ngrams(text_3,2))
+    bigrams_counted=Counter(bigrams)
+    print(bigrams_counted)
+
+    top_bigrams=bigrams_counted.most_common(10)
+    if not top_bigrams:
+        print('no bigrams to plot')
+        return
+    
+    
+    labels, counts=zip(*top_bigrams)#label=(a,b)---> the tuple; counts=,n---> the frequency
+    labels=[' '.join(bg) for bg in labels]
+    plt.figure(figsize=(10,6))
+    plt.bar(labels,counts)
+    plt.xticks(rotation=45)
+    plt.title('Bigram visualization using Matplotlib:')
+    plt.show()
+
+    
+    
+
+
+remove_stopwords(text)
+plotting(text)
