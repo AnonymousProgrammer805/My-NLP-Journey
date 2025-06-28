@@ -1,0 +1,34 @@
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.util import ngrams
+from nltk.corpus import stopwords
+import wordcloud
+from wordcloud import WordCloud
+from collections import Counter
+import matplotlib.pyplot as plt
+
+
+text='Natural Language Processing helps machines understand and interpret human natural language.'
+stop_words=stopwords.words('english')
+
+text_1=text.casefold()
+text_2=word_tokenize(text_1)
+words_list=[token for token in text_2 if token not in stop_words and token.isalpha()]
+bigram_1=list(ngrams(words_list,2))
+counted_bigram=Counter(bigram_1)
+
+for label, key in counted_bigram.items():
+    print(f"{' '.join(label)} {key}")
+
+get_items=counted_bigram.items()
+labels=[' '.join(bits) for bits in counted_bigram]
+full_rebuilt=' '.join(labels)
+
+
+wc=WordCloud(width=800, height=800, background_color='white').generate(full_rebuilt)
+
+plt.figure(figsize=(12,12))
+plt.imshow(wc, interpolation='bilinear')
+plt.axis('off')
+plt.title('Bigram Word Cloud Representation')
+plt.show()
