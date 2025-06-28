@@ -1,0 +1,46 @@
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.util import ngrams
+from collections import Counter
+from nltk.corpus import stopwords
+
+text='Natural language processing is the field of AI which helps machines understand Human Natural Language.'
+
+text_1=text.casefold()
+text_2=word_tokenize(text)
+
+unigrams=list(ngrams(text_2,1))
+bigrams=list(ngrams(text_2,2))
+trigrams=list(ngrams(text_2,3))
+
+print(unigrams);print('-'*50);print(bigrams);print('-'*50);print(trigrams);print('-'*50)
+
+def set_counter(doc):
+    doc_1=list(word_tokenize(doc.lower()))
+    doc_2=Counter(token for token in doc_1)
+    
+    doc_3a=list(ngrams(doc_1,2))
+    doc_3b=Counter(doc_3a)
+    return (doc_3b)
+    
+
+
+def u_counter(bits):#uses set_counter method; not u_counter
+    doc_result1=set_counter(bits)
+    doc_4a=list(sorted(doc_result1.items(), key= lambda x: x[1]))
+    print(doc_4a);print('Hello')
+    
+    return doc_4a
+
+def filter_counter(bits_1):# uses set_counter ,method; not u_counter
+    stopwords_list=set(stopwords.words('english'))
+    output_1=set_counter(bits_1)
+    filtered_words=[bg for bg in output_1 if all(w not in stopwords_list and len(w)>2 for w in bg)]
+    output_a=[" ".join(abc) for abc in filtered_words]
+    print(output_a);print('|||')
+
+
+
+
+u_counter(text)
+filter_counter(text) 
