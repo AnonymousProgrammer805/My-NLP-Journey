@@ -1,0 +1,117 @@
+#-------#
+import spacy
+from spacy import displacy
+from spacy import explain
+
+
+#------#
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.util import ngrams
+from collections import Counter
+#-----#
+import matplotlib.pyplot as plt
+#------#
+
+text='Natural Language Processing is that field of AI that helps the machines understand Human Natural Language'
+nlp=spacy.load("en_core_web_sm")
+
+#Sentences and words of each sentence
+
+def get_sents(doc):
+    processed_text=nlp(doc)
+    print(processed_text.sents)
+    for i, sent in enumerate(processed_text.sents,1):
+        print('-'*50)
+        print(f'{i:<5}--->{sent}')
+        print('-'*50)
+        for token in sent:
+            print(f'{token.text}')
+#Average Words
+
+def avg_words(doc):
+    processed_text=nlp(doc)
+    total_sent=len(list(sents for sents in processed_text.sents))
+    total_words=sum(len(sent.text.strip().split())for sent in processed_text.sents)
+    total_average=(total_words)/(total_sent)
+    print('Average number of words per sentence:',total_average)
+
+#Part-of-Speech
+
+def get_pos(doc):
+    processed_text=nlp(doc)
+    for sent in processed_text.sents:
+        print('-'*50)
+        print(sent.text.strip())
+        print('-'*50)
+        for tokens in sent:
+            pos=tokens.pos_
+            pos_exp=explain(pos)
+            print(f'{tokens.text:<15}{pos:<15}{pos_exp}')
+
+
+
+#Tag
+
+def get_tag(doc):
+    processed_text=nlp(doc)
+    for sent in processed_text.sents:
+        print('-'*50)
+        print(sent.text.strip())
+        print('-'*50)
+        for tokens in sent:
+            tag=tokens.tag_
+            tag_exp=explain(tag)
+            print(f'{tokens.text:<15}{tag:<15}{tag_exp}')
+
+#NER
+def get_ents(doc):
+    processed_text=nlp(doc)
+    for sent in processed_text.sents:
+        print('-'*50)
+        print(sent.text.strip())
+        print('-'*50)
+
+        for ent in sent.ents:
+            print(f'{ent.text:<15}{ent.label_}')
+
+        counted_entities=Counter(ent.label_ for ent in processed_text.ents)
+        print(counted_entities.most_common())
+#Creating bigrams
+
+def bigrams(doc):
+    stop_words=set(stopwords.words('english'))
+    text_casefold=doc.casefold()
+    text_tokenized=word_tokenize(text_casefold)
+    filtered_text=[bg for bg in text_tokenized if bg not in stop_words and bg.isalpha()]
+    create_bigrams=list(ngrams(filtered_text,2))
+    print('-'*50)
+    print(create_bigrams)
+    print('-'*50)
+    return create_bigrams
+
+
+#Visualization of bigrams using matplotlib
+def showcase_bigrams(doc):
+    value_1=bigrams(doc)
+    all_bigram=Counter(value_1)
+    top_bigrams=all_bigram.most_common(10)
+    print(f'||| {top_bigrams} |||')
+    labels, values= zip(*top_bigrams)
+    labels=[' '.join(bits) for bits in labels]
+    print(labels)
+    plt.figure(figsize=(12,12))
+    plt.bar(labels,values)
+    plt.xticks(rotation=45)
+    plt.title('Bigram-Visualization')
+    plt.show()
+
+
+get_sents(text)
+avg_words(text)
+get_pos(text)
+get_tag(text)
+get_ents(text)
+bigrams(text)
+showcase_bigrams(text)
