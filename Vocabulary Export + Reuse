@@ -1,0 +1,28 @@
+import pickle
+import sklearn
+from sklearn.feature_extraction.text import CountVectorizer
+
+
+corpus=['I love programming.',
+        'All I ever do is coding',
+        'To me, programming is the most logical and exciting art-form.']
+vectorizer=CountVectorizer()
+X=vectorizer.fit_transform(corpus)
+
+with open("vocab.pkl","wb") as f:
+    pickle.dump(vectorizer.vocabulary_,f)
+
+print('Vocabulary saved !!!')
+
+with open("vocab.pkl","rb") as f:
+    my_data=pickle.load(f)
+
+new_vectorizer=CountVectorizer(vocabulary=my_data)
+new_doc=['I love coding because it is logical and exciting']
+new_data=new_vectorizer.transform(new_doc)
+
+print('-'*50)
+print('My data');print(my_data)
+print('-'*50)
+
+print(new_data.toarray())
