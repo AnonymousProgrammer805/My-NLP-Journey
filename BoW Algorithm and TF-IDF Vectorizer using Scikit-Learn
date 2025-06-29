@@ -1,0 +1,27 @@
+import sklearn
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+
+corpus=["ChatGPT is a helpful AI.",
+        "AI helps build intelligent systems.",
+        "GPT models are based on transformers."]
+
+bow_vectorizer=CountVectorizer()
+tfidf_vectorizer=TfidfVectorizer()
+
+bow=bow_vectorizer.fit_transform(corpus)
+tfidf=tfidf_vectorizer.fit_transform(corpus)
+
+print('TF-IDF Output:')
+print('-'*50)
+print(tfidf_vectorizer.get_feature_names_out())
+print('-'*50)
+print(tfidf.toarray())
+print('-'*50)
+
+
+print('BoW Algorithm Output:')
+print('-'*50)
+print(bow_vectorizer.get_feature_names_out())
+print('-'*50)
+print(bow.toarray())
+print('-'*50)
