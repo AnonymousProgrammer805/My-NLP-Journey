@@ -1,0 +1,29 @@
+#bow_algorithm
+
+import nltk
+from nltk import word_tokenize
+
+
+def tokenize(text: str)-> list[str]:
+    return word_tokenize(text.lower())
+
+def bow_algorithm(docs: list[str])-> (tuple[list[list[int]]],list[str]):
+    vocabulary={}
+    vectors=[]
+    for doc in docs:
+        tokens=tokenize(doc)
+        for token in tokens:
+            if token not in vocabulary:
+                vocabulary[token]=len(vocabulary)
+    for doc in docs:
+        tokens=tokenize(doc)
+        vector=[0]*len(vocabulary)
+        for token in tokens:
+            vector[vocabulary[token]]+=1
+        vectors.append(vector)
+    print(vectors, list(vocabulary.keys()))
+
+    return vectors, list(vocabulary.keys())
+docs = ["ChatGPT is amazing", "GPT models are powerful", "ChatGPT is powerful"]
+
+bow_algorithm(docs)
