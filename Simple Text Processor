@@ -1,0 +1,13 @@
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+
+def text_preprocess(doc):
+    text=doc.casefold()
+    text_2=word_tokenize(text)
+    filtered_tokens=[token for token in text_2 if token not in stopwords.words('english') and (token.isalpha() or token.isdigit())]
+    print(filtered_tokens)
+    return filtered_tokens
+
+text='My name is Nithin and I am 16 years old. I love coding but it can be frustrating sometimes.'
+text_preprocess(text)
