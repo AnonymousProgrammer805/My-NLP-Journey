@@ -1,0 +1,43 @@
+import spacy
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+import re
+import gensim
+from gensim import corpora, models
+import pprint
+from pprint import pprint
+import string
+punctuations=string.punctuation
+nlp=spacy.load("en_core_web_sm")
+
+stop_words=set(stopwords.words('english'))
+
+def preprocessing(text):
+    lowered_text=text.lower()
+    lowered_text=re.sub("\s+"," ",lowered_text)
+    lowered_text=re.sub("[^a-zA-Z0-9]"," ",lowered_text)
+    tokens=word_tokenize(lowered_text)
+    filtered_text=[token for token in tokens if token not in stop_words and token not in punctuations]
+    print(filtered_text)
+    return filtered_text
+
+documents = [
+    "Artificial intelligence and machine learning are the future.",
+    "Natural language processing is a subfield of AI.",
+    "AI applications include robotics, vision, and language."
+]
+
+preprocessed_docs=[preprocessing(doc) for doc in documents]
+dictionary=corpora.Dictionary(preprocessed_docs)
+processed_corpus=[dictionary.doc2bow(bits) for bits in preprocessed_docs]
+lda_model=models.LdaModel(processed_corpus, num_topics=2, id2word=dictionary, passes=10)
+pprint(lda_model.print_topics())
+
+
+def get_topic_for_text(doc):
+    processed_doc=preprocessing(doc)
+    vectors=dictionary.doc2bow(processed_doc)
+    return lda_model[vectors]
+text_1='AI in robotics is growing fast.'
+print(get_topic_for_text(text_1))
