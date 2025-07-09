@@ -1,0 +1,168 @@
+import spacy
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+import re
+import gensim
+from gensim import corpora, models
+import pprint
+from pprint import pprint
+import string
+import pyLDAvis.gensim_models
+import pyLDAvis
+import gensim.models
+from gensim.models import CoherenceModel
+
+punctuations=string.punctuation
+nlp=spacy.load("en_core_web_sm")
+
+stop_words=set(stopwords.words('english'))
+
+
+
+
+
+
+
+
+def preprocessing(text):
+    lowered_text=text.lower()
+    lowered_text=re.sub("\s+"," ",lowered_text)
+    lowered_text=re.sub("[^a-zA-Z0-9]"," ",lowered_text)
+    tokens=word_tokenize(lowered_text)
+    filtered_text=[token for token in tokens if token not in stop_words and token not in punctuations]
+    return filtered_text
+
+documents = [
+    "Artificial intelligence is transforming industries.",
+    "Machine learning automates data analysis tasks.",
+    "Natural language processing powers voice assistants.",
+    "AI can detect patterns humans cannot see.",
+    "Neural networks are inspired by the human brain.",
+    "Deep learning models require massive amounts of data.",
+    "Reinforcement learning helps agents learn by rewards.",
+    "Text classification is a common NLP task.",
+    "Sentiment analysis determines emotional tone in text.",
+    "AI is used for medical diagnosis and predictions.",
+    "Chatbots rely heavily on NLP to understand users.",
+    "Language models like GPT can generate human-like text.",
+    "Tokenization breaks text into smaller parts.",
+    "Part-of-speech tagging identifies grammatical roles.",
+    "Named entity recognition extracts proper names from text.",
+    "Speech recognition converts spoken language to text.",
+    "Convolutional neural networks are used for image tasks.",
+    "Transformers revolutionized NLP with attention mechanisms.",
+    "AI models require feature extraction from raw data.",
+    "Support vector machines are traditional ML classifiers.",
+    "Clustering groups similar data points together.",
+    "Data preprocessing is crucial for model accuracy.",
+    "AI systems must be trained on diverse data.",
+    "Natural language understanding helps AI grasp meaning.",
+    "Text summarization condenses long texts into key ideas.",
+    "Spam detection filters unwanted messages.",
+    "Topic modeling discovers hidden themes in documents.",
+    "Word embeddings represent words in vector space.",
+    "BERT is a state-of-the-art language representation model.",
+    "AI is used in self-driving cars for decision-making.",
+    "Data labeling is required for supervised learning.",
+    "NLP can be used for fake news detection.",
+    "AI helps automate repetitive tasks in workflows.",
+    "Lemmatization reduces words to their root form.",
+    "Stemming is another way to normalize text.",
+    "Unsupervised learning finds structure in unlabelled data.",
+    "OCR uses AI to read text from images.",
+    "AI algorithms learn from historical data trends.",
+    "ML helps predict customer churn in business.",
+    "Recommender systems are powered by collaborative filtering.",
+    "AI is impacting education through personalized learning.",
+    "Voice assistants like Alexa use NLP.",
+    "Translation engines like Google Translate use deep learning.",
+    "Emotion detection helps gauge user sentiment.",
+    "Zero-shot learning allows models to generalize to new tasks.",
+    "Few-shot learning requires less labeled data.",
+    "Transfer learning allows reuse of pretrained models.",
+    "Data augmentation helps expand training datasets.",
+    "Ethics in AI is a growing area of concern.",
+    "Bias in AI models can lead to unfair outcomes.",
+    "Explainable AI helps users trust the model's decisions.",
+    "AI in finance helps detect fraud patterns.",
+    "Multimodal AI uses vision, text, and speech together.",
+    "Self-attention mechanisms allow models to focus on context.",
+    "Long short-term memory is used for sequence prediction.",
+    "Generative models can create images or text.",
+    "GANs are used to generate realistic data samples.",
+    "AI can outperform doctors in some diagnostic tasks.",
+    "AI is used in cybersecurity for threat detection.",
+    "Language models can answer questions based on context.",
+    "AI-powered writing tools help generate content.",
+    "ML algorithms tune hyperparameters for best performance.",
+    "Dimensionality reduction simplifies data for modeling.",
+    "Hierarchical clustering builds nested groupings of data.",
+    "Bag-of-words is a simple NLP model.",
+    "TF-IDF helps highlight important words in text.",
+    "NLP is used in search engines to rank results.",
+    "AI can help detect anomalies in sensor data.",
+    "ML can identify customer buying patterns.",
+    "AI-based plagiarism detection checks for content reuse.",
+    "Speech-to-text tech is improving accessibility.",
+    "Reinforcement learning is used in game AI.",
+    "Pretrained models save time and compute.",
+    "AutoML automates the machine learning pipeline.",
+    "AI is helping fight climate change through smart data.",
+    "ML helps optimize supply chain logistics.",
+    "Conversational AI is used in customer support.",
+    "Sentiment analysis is used by brands for feedback.",
+    "AI is behind social media feed algorithms.",
+    "ML helps in facial recognition applications.",
+    "Data scientists clean and analyze datasets.",
+    "Sequence labeling is important in NLP pipelines.",
+    "AI-generated art is growing in popularity.",
+    "Knowledge graphs help AI systems link facts.",
+    "Natural language generation turns data into reports.",
+    "AI helps detect hate speech on platforms.",
+    "ML helps predict loan defaults in banking.",
+    "Vectorization converts text into numeric form.",
+    "AI helps in drug discovery and genomics.",
+    "Spacy and NLTK are libraries for NLP tasks.",
+    "Language detection is a common preprocessing step.",
+    "AI can summarize legal documents automatically.",
+    "Text similarity models find related documents.",
+    "ML classifiers separate spam from genuine email.",
+    "AI models benefit from more high-quality data.",
+    "AI in games adapts difficulty for players.",
+    "Large language models learn from billions of words.",
+    "Ethical AI design ensures fair, transparent systems.",
+    "NLP enables machines to read and write naturally.",
+    "Machine learning is a subset of AI.",
+    "AI is enabling faster scientific research.",
+    "Entity linking connects names to real-world objects.",
+    "NLP tools can process multiple languages.",
+    "Explainability is key for AI in healthcare.",
+    "ML pipelines automate model building steps.",
+    "AI is shaping the future of communication."
+]
+
+
+
+
+preprocessed_docs=[preprocessing(doc) for doc in documents]
+dictionary=corpora.Dictionary(preprocessed_docs)
+processed_corpus=[dictionary.doc2bow(bits) for bits in preprocessed_docs]
+lda_model=models.LdaModel(processed_corpus, num_topics=5, id2word=dictionary, passes=25,iterations=400)
+pprint(lda_model.print_topics())
+
+coherence_model=CoherenceModel(model=lda_model, texts=preprocessed_docs, dictionary=dictionary, coherence='c_v')
+coherence_score=coherence_model.get_coherence()
+print('-'*50)
+print("Coherence Score: ", coherence_score)
+print('-'*50)
+
+
+def get_topic_for_text(doc):
+    processed_doc=preprocessing(doc)
+    vectors=dictionary.doc2bow(processed_doc)
+    return lda_model[vectors]
+text_1='AI in robotics is growing fast.'
+print("="*50)
+print(get_topic_for_text(text_1))
+print("="*50)
