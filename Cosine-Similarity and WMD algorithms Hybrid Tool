@@ -1,0 +1,34 @@
+import nltk
+from nltk.tokenize import word_tokenize
+import sklearn
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from gensim.similarities import WmdSimilarity
+import streamlit as st
+import gensim.downloader as api
+model=api.load("word2vec-google-news-300")
+
+vectorizer=TfidfVectorizer()
+
+def get_sim(doc_1,doc_2):
+    matrix=vectorizer.fit_transform([doc_1,doc_2])
+    sim=cosine_similarity(matrix[0:1],matrix[1:2])
+    return sim[0][0]*100
+
+def get_wmd(doc_1,doc_2):
+    tokens_1=word_tokenize(doc_1.lower())
+    tokens_2=word_tokenize(doc_2.lower())
+    wmd_score=model.wmdistance(tokens_1,tokens_2)
+    return wmd_score
+
+st.title("Cosine-Similarity and WMD algorithms Hybrid Tool.")
+text_1=st.text_area("Enter the first document: ")
+text_2=st.text_area("Enter the second document: ")
+
+
+if st.button("Check Cosine Similarity"):
+    c_sim=get_sim(text_1,text_2)
+    st.write("The cosine similarity is :",c_sim)
+if st.button("Check WMD score:"):
+    wmd_s=get_wmd(text_1,text_2)
+    st.write("The WMD score is: ",wmd_s)
