@@ -1,0 +1,27 @@
+import nltk
+from nltk.tokenize import word_tokenize
+import gensim
+from gensim.models import Word2Vec
+import pandas as pd
+import gensim.downloader as api
+
+
+df=pd.read_csv("wiki_ai_dataset.csv")
+sentences=df['text'].dropna().tolist()
+model=api.load("word2vec-google-news-300")
+
+
+
+tokenized_sentences=[word_tokenize(s.lower()) for s in sentences]
+
+model_cbow=Word2Vec(sentences=tokenized_sentences, vector_size=100, sg=0, window=5, min_count=1)
+model_skipgram=Word2Vec(sentences=tokenized_sentences, vector_size=100, sg=1, window=5, min_count=1)
+
+print("Vector for the word intelligence:")
+print(model_cbow.wv.most_similar('intelligence',topn=5))
+print(model_cbow.wv.similarity('ai','learning'))
+print("Skip gram:")
+print(model_skipgram.wv.similarity('ai','learning'))
+
+sim_score=model.most_similar(positive=["king","woman"], negative=["man"],topn=1)
+print(sim_score[0])
