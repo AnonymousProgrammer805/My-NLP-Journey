@@ -1,0 +1,61 @@
+import json
+import requests
+import urllib.parse
+
+
+valid_list=["1","2","3","4","5","6","7","8","9","0","/","*","+","-",")","(","]","["]
+
+def api_input_data():
+    print("Choose from one of the following:- ")
+    print("1.Calculator 2.Weather API")
+    tool=input("Enter API name: ")
+    if tool.lower()=="calculator":
+        print("Enter the mathematical expression you want to find the answer of: ")
+        math_expr=input("Enter the expression: ")
+        for i in tuple(str(math_expr)):
+            if i not in valid_list:
+                print("ERROR: You have used invalid characters... ")
+                
+                return None,None
+            
+        return "calculator",math_expr
+
+    elif tool.lower()=="weather api":
+        city_name=input("Enter name of the city [Eg: Kochi]:-  ")
+        return "weather",city_name
+    else:
+        return None, None
+                
+    
+
+def call_tools(tool_type,query):
+    if tool_type.lower()=="calculator":
+        base_url="https://api.mathjs.org/v4/"
+        params={"expr":query}
+        response=requests.get(base_url,params=params)
+        response.raise_for_status()
+        return response.text.strip()
+
+        
+
+    elif tool_type.lower()=="weather":
+        encoded_city=urllib.parse.quote(query)
+        base_url=f"https://wttr.in/{encoded_city}?format=3"
+        response=requests.get(base_url)
+        response.raise_for_status()
+        return response.text.strip()
+
+    else:
+        print("Invalid option...")
+
+
+def main():
+    t_type, val=api_input_data()
+    if t_type and val:
+        response=call_tools(t_type,val)
+        print("Answer to your request: ")
+        print(response)
+
+
+if __name__=="__main__":
+    main()
