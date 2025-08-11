@@ -1,0 +1,58 @@
+import torch
+import pandas as pd
+from torch.utils.data import Dataset, DataLoader
+from sklearn.feature_extraction.text import CountVectorizer
+
+class TextClassificationDataset(Dataset):
+    def __init__(self, csv_file, vectorizer=None):
+        self.data = pd.read_csv(csv_file)
+
+        assert "text" in self.data.columns and "label" in self.data.columns, \
+            "The CSV file must have column headers: text and label"
+
+        if vectorizer is None:
+            self.vectorizer = CountVectorizer()
+            self.vectorizer.fit(self.data['text'].tolist())
+        else:
+            self.vectorizer = vectorizer
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        text = self.data.iloc[idx]['text']
+        label = self.data.iloc[idx]['label']
+
+        vector = self.vectorizer.transform([text])
+        vector = torch.tensor(vector.toarray(), dtype=torch.float32).squeeze(0)
+        label_tensor = torch.tensor(label, dtype=torch.float32)
+
+        return vector, label_tensor
+
+
+if __name__ == "__main__":
+    sample_data = {
+        "text": [
+            "I love PyTorch",
+            "Deep learning is amazing",
+            "PyTorch makes NLP easy",
+            "I dislike slow training"
+        ],
+        "label": [1, 1, 1, 0]
+    }
+    df = pd.DataFrame(sample_data)
+    df.to_csv("sample_dataset.csv", index=False)
+
+    dataset = TextClassificationDataset("sample_dataset.csv")
+
+    sample_input, sample_label = dataset[0]
+    print("First vector size:", sample_input.shape)
+    print("Non zero indices:", sample_input.nonzero(as_tuple=True)[0])
+    print("Sample label:", sample_label)
+
+    dataloader = DataLoader(dataset, batch_size=2, shuffle=True)
+
+    for inputs, labels in dataloader:
+        print("Input batch shape:", inputs.shape)
+        print("Labels:", labels)
+        break
