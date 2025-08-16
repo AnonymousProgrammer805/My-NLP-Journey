@@ -1,0 +1,165 @@
+import torch
+from torch.utils.data import Dataset, DataLoader
+import torch.nn as nn
+import torch.optim as optim
+import numpy as np
+import transformers
+from transformers import AutoTokenizer, AutoModel
+
+
+
+
+# 1. Custom Dataset example with variable-length input (like sentences with different lengths)
+class CustomTextDataset(Dataset):
+    def __init__(self, data):
+        """
+        data: list of lists of varying lengths, e.g. token ids of sentences
+        """
+        self.data = data
+        self.labels = [len(x) % 2 for x in data]  # dummy labels for example
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        # Returns (variable_length_tensor, label)
+        return torch.tensor(self.data[idx], dtype=torch.long), self.labels[idx]
+
+
+# 3. Custom collate_fn to pad sequences in a batch
+def collate_fn(batch):
+    # batch is a list of tuples (data, label)
+    data, labels = zip(*batch)
+
+    # Pad sequences to max length in this batch
+    lengths = [len(seq) for seq in data]
+    max_len = max(lengths)
+
+    padded_data = torch.zeros(len(data), max_len, dtype=torch.long)
+    for i, seq in enumerate(data):
+        end = lengths[i]
+        padded_data[i, :end] = seq[:end]
+
+    labels = torch.tensor(labels, dtype=torch.long)
+
+    return padded_data, labels
+
+
+# Simple model for classification: Embedding + average pooling + Linear
+class SimpleModel(nn.Module):
+    def __init__(self, vocab_size, embed_dim, num_classes):
+        super().__init__()
+        self.embedding = nn.Embedding(vocab_size, embed_dim)
+        self.fc = nn.Linear(embed_dim, num_classes)
+
+    def forward(self, x):
+        # x: [batch_size, seq_len]
+        embedded = self.embedding(x)  # [batch_size, seq_len, embed_dim]
+        pooled = embedded.mean(dim=1)  # average pooling over seq_len
+        out = self.fc(pooled)
+        return out
+
+
+def train_one_epoch(model, dataloader, criterion, optimizer, device):
+    model.train()
+    total_loss = 0.0
+    correct = 0
+    total = 0
+    for inputs, targets in dataloader:
+        inputs, targets = inputs.to(device), targets.to(device)
+
+        optimizer.zero_grad()
+        outputs = model(inputs)
+        loss = criterion(outputs, targets)
+        loss.backward()
+        optimizer.step()
+
+        total_loss += loss.item() * inputs.size(0)
+        _, predicted = torch.max(outputs, 1)
+        correct += (predicted == targets).sum().item()
+        total += targets.size(0)
+
+    avg_loss = total_loss / total
+    accuracy = correct / total
+    return avg_loss, accuracy
+
+
+def main():
+    # Sample variable length data (token ids)
+    data = [
+        [1, 2, 3],
+        [4, 5],
+        [6, 7, 8, 9],
+        [10],
+        [11, 12, 13, 14, 15],
+        [16, 17, 18, 19],
+        [20, 21, 22],
+        [23, 24, 25, 26, 27, 28],
+    ]
+
+    dataset = CustomTextDataset(data)
+
+    # 4. DataLoader with shuffle, num_workers, pin_memory and custom collate_fn
+    dataloader = DataLoader(
+        dataset,
+        batch_size=3,
+        shuffle=True,
+        num_workers=0,        # Increase to >0 on Linux/macOS for speed, keep 0 on Windows
+        pin_memory=True,
+        collate_fn=collate_fn
+    )
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    vocab_size = 30
+    embed_dim = 16
+    num_classes = 2
+
+    model = SimpleModel(vocab_size, embed_dim, num_classes).to(device)
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.parameters(), lr=0.01)
+
+    # 2. Print each batch and verify shapes
+    print("Batches:")
+    for i, (inputs, labels) in enumerate(dataloader):
+        print(f"Batch {i + 1}")
+        print(f"Input shape: {inputs.shape}")  # [batch_size, max_seq_len]
+        print(f"Labels: {labels}")
+        if i == 1:  # Just print first 2 batches
+            break
+
+    # 5. Train with batches and compare performance with full batch
+    # Full batch loader (batch_size = len(dataset))
+    full_batch_loader = DataLoader(dataset, batch_size=len(dataset), collate_fn=collate_fn)
+
+    print("\nTraining with mini-batches:")
+    for epoch in range(3):
+        loss, acc = train_one_epoch(model, dataloader, criterion, optimizer, device)
+        print(f"Epoch {epoch+1} - Loss: {loss:.4f} Accuracy: {acc:.4f}")
+
+    print("\nTraining with full batch:")
+    for epoch in range(3):
+        loss, acc = train_one_epoch(model, full_batch_loader, criterion, optimizer, device)
+        print(f"Epoch {epoch+1} - Loss: {loss:.4f} Accuracy: {acc:.4f}")
+
+
+if __name__ == "__main__":
+    main()
+
+tokenizer=AutoTokenizer.from_pretrained("bert-base-uncased")
+bert_model=AutoModel.from_pretrained("bert-base-uncased")
+bert_model.eval()
+
+sentence="I love AI and transformers."
+inputs=tokenizer(sentence, return_tensors="pt")
+input_ids=inputs["input_ids"]
+attention_mask=inputs["attention_mask"]
+with torch.no_grad():
+    outputs=bert_model(input_ids,attention_mask=attention_mask)
+    word_embeddings=outputs.last_hidden_state
+print("The sentence: ",sentence)
+print("The input IDs: ",input_ids)
+print("The attention mask: ",attention_mask)
+print("The word embedding shape: ",word_embeddings.shape)
+
+
