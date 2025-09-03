@@ -1,0 +1,49 @@
+import nltk
+from nltk.tokenize import sent_tokenize
+import re
+
+def TextCleaner(text):
+    sentences=text.lower()
+    sentences=sent_tokenize(sentences)
+    
+    return sentences
+
+#Testing Data chunk:-
+document = """
+Large Language Models (LLMs) like GPT, BERT, and T5 have transformed natural language processing. 
+They operate with token limits, meaning only a fixed amount of text can be processed at once. 
+To handle longer documents, we must split them into smaller pieces. 
+If we simply cut text without overlap, models might lose important context. 
+Overlapping ensures continuity across chunks, preserving meaning across sentence boundaries.
+"""
+
+def Chunking_Function(sentences,max_tokens=50,overlap=10):
+    chunks=[]
+    current_chunk=[]
+    current_length=0
+
+
+   
+
+
+    cleaned_sentences=TextCleaner(sentences)
+    for sentence in cleaned_sentences:
+        words=sentence.split()
+        if current_length+len(words)>max_tokens:
+            chunks.append(" ".join(current_chunk))
+            overlap_words=current_chunk[-overlap:] if overlap<len(current_chunk) else current_chunk
+            current_chunk=overlap_words+words
+            current_length+=len(current_chunk)
+
+        else:
+            current_chunk.extend(words)
+            current_length+=len(words)
+
+    if current_chunk:
+            chunks.append(" ".join(current_chunk))
+    return chunks 
+
+
+
+chunks=Chunking_Function(document)
+print(chunks)
